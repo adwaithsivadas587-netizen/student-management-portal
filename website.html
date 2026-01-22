@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Ahalia Student Management Portal</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    font-family:Segoe UI, sans-serif;
+    background:url('https://sl.bing.net/jsZ0qTx7UMC') no-repeat center center fixed;
+    background-size:cover;
+}
+
+.header{
+    background:#1e3a8a;
+    color:white;
+    text-align:center;
+    padding:25px;
+}
+.college-name{font-size:42px;font-weight:900;}
+.college-sub{font-size:14px;}
+
+.hidden{display:none;}
+
+.container{
+    background:rgba(255,255,255,0.95);
+    width:95%;
+    max-width:1200px;
+    margin:30px auto;
+    padding:25px;
+    border-radius:15px;
+    position:relative;
+}
+
+.optionsWindow{
+    background:rgba(255,255,255,0.97);
+    width:80%;
+    max-width:700px;
+    margin:70px auto;
+    padding:50px;
+    border-radius:60px;
+    text-align:center;
+}
+
+.option-btn{
+    width:100%;
+    padding:20px;
+    margin:12px 0;
+    border:none;
+    border-radius:50px;
+    font-size:20px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+.option-btn:hover{transform:scale(1.05);}
+
+input{
+    width:100%;
+    padding:8px;
+    margin:6px 0;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+}
+th,td{
+    border:1px solid #aaa;
+    padding:6px;
+    text-align:center;
+}
+
+img.photo{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    object-fit:cover;
+}
+
+.captcha-box{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.captcha{
+    font-size:22px;
+    font-weight:800;
+    background:#e5e7eb;
+    padding:8px 16px;
+}
+.refresh{
+    background:#2563eb;
+    color:white;
+    padding:8px;
+    cursor:pointer;
+}
+
+.subject-grid{
+    display:grid;
+    grid-template-columns:repeat(6,1fr);
+    gap:6px;
+}
+.section-title{
+    margin-top:15px;
+    font-weight:700;
+    color:#1e3a8a;
+}
+
+/* camera icon */
+.bg-upload{
+    position:absolute;
+    top:15px;
+    right:15px;
+    background:#2563eb;
+    color:white;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+}
+.bg-upload input{display:none;}
+
+#instaBtn{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    background:#E1306C;
+    color:white;
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    cursor:pointer;
+    z-index:1000;
+}
+
+/* ✅ CALL OPTION ADDED */
+#callBtn{
+    position:fixed;
+    bottom:20px;
+    left:20px;
+    background:#16a34a;
+    color:white;
+    width:55px;
+    height:55px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    cursor:pointer;
+    z-index:1000;
+}
+
+#callPopup{
+    position:fixed;
+    bottom:90px;
+    left:20px;
+    background:white;
+    padding:15px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    display:none;
+    z-index:1001;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="college-name">AHALIA SCHOOL OF ENGINEERING AND TECHNOLOGY</div>
+    <div class="college-sub">
+        Ahalia Health, Heritage & Knowledge Village, Kozhipara, Palakkad – 678557
+    </div>
+</div>
+
+<!-- LOGIN -->
+<div class="container" id="loginPage">
+    <h2>Login</h2>
+
+    <label class="bg-upload">
+        📷
+        <input type="file" accept="image/*" onchange="setBackground(event)">
+    </label>
+
+    <input id="loginUser" placeholder="Username">
+    <input id="loginPass" type="password" placeholder="Password">
+
+    <div class="captcha-box">
+        <div class="captcha" id="captchaText"></div>
+        <div class="refresh" onclick="generateCaptcha()">↻</div>
+    </div>
+    <input id="captchaInput" placeholder="Enter CAPTCHA">
+
+    <button onclick="login()">Login</button>
+    <button onclick="rapidLogin()" style="background:#10b981;color:white;">⚡ Rapid Login</button>
+    <p id="error" style="color:red;text-align:center;"></p>
+</div>
+
+<!-- OPTIONS -->
+<div id="optionsWindow" class="optionsWindow hidden">
+    <h2>Choose Option</h2>
+    <button class="option-btn" onclick="openTab('student')">📘 Student Details</button>
+    <button class="option-btn" onclick="openTab('addStudent')">➕ Add Student</button>
+    <button class="option-btn" onclick="openTab('attendance')">📊 Attendance</button>
+    <button class="option-btn" onclick="openTab('faculty')">👨‍🏫 Faculties</button>
+    <button class="option-btn" onclick="openTab('user')">👤 User Interface</button>
+    <button class="option-btn" style="background:#dc2626" onclick="logout()">🚪 Logout</button>
+</div>
+
+<!-- STUDENT DETAILS -->
+<div id="student" class="container hidden">
+<h2>Student Details</h2>
+<table id="studentTable">
+<tr>
+<th>Photo</th>
+<th>Name</th><th>Roll</th><th>Dept</th><th>Year</th><th>Attendance</th>
+<th colspan="6">INTERNAL 1</th>
+<th colspan="6">INTERNAL 2</th>
+</tr>
+</table>
+<button onclick="backHome()">⬅ Back to Home</button>
+</div>
+
+<!-- ADD STUDENT -->
+<div id="addStudent" class="container hidden">
+<h2>Add Student</h2>
+
+<input id="sphoto" type="file" accept="image/*">
+<input id="sname" placeholder="Name">
+<input id="sroll" placeholder="Roll">
+<input id="sdept" placeholder="Department">
+<input id="syear" placeholder="Year">
+<input id="satt" placeholder="Attendance %">
+
+<button onclick="addStudent()">Save Student</button>
+<button onclick="backHome()">⬅ Back to Home</button>
+</div>
+
+<!-- ATTENDANCE -->
+<div id="attendance" class="container hidden">
+<h2>Attendance Graph</h2>
+<canvas id="attendanceChart" width="900" height="400"></canvas>
+<button onclick="backHome()">⬅ Back to Home</button>
+</div>
+
+<!-- FACULTY -->
+<div id="faculty" class="container hidden">
+<h2>Faculty</h2>
+<input id="fphoto" type="file" accept="image/*">
+<input id="fname" placeholder="Faculty Name">
+<input id="fdept" placeholder="Department">
+<button onclick="addFaculty()">Add Faculty</button>
+<ul id="facultyList"></ul>
+<button onclick="backHome()">⬅ Back to Home</button>
+</div>
+
+<!-- USER -->
+<div id="user" class="container hidden">
+<h2>User Interface</h2>
+<p><b>Username:</b> user123</p>
+<button onclick="backHome()">⬅ Back to Home</button>
+</div>
+
+<div id="instaBtn" onclick="window.open('https://www.instagram.com/official.aset/?hl=en','_blank')">📸</div>
+
+<!-- ✅ CALL BUTTON -->
+<div id="callBtn" onclick="toggleCall()">📞</div>
+
+<!-- ✅ CALL POPUP -->
+<div id="callPopup">
+    <p><b>Call Us</b></p>
+    <p>📞 9999999999</p>
+    <a href="tel:9999999999">
+        <button style="background:#16a34a;color:white;border:none;padding:8px 14px;border-radius:8px;">
+            Call Now
+        </button>
+    </a>
+</div>
+
+<script>
+let students=[], captchaValue="";
+
+function generateCaptcha(){
+    const c="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    captchaValue="";
+    for(let i=0;i<5;i++) captchaValue+=c[Math.floor(Math.random()*c.length)];
+    captchaText.innerText=captchaValue;
+}
+generateCaptcha();
+
+function login(){
+    if(loginUser.value!=="user123"||loginPass.value!=="1234"){error.innerText="Invalid Login";return;}
+    if(captchaInput.value!==captchaValue){error.innerText="Wrong CAPTCHA";generateCaptcha();return;}
+    loginPage.classList.add("hidden");
+    optionsWindow.classList.remove("hidden");
+}
+
+function rapidLogin(){
+    loginPage.classList.add("hidden");
+    optionsWindow.classList.remove("hidden");
+}
+
+function openTab(id){
+    optionsWindow.classList.add("hidden");
+    document.getElementById(id).classList.remove("hidden");
+    if(id==="attendance") drawChart();
+}
+
+function backHome(){
+    document.querySelectorAll(".container").forEach(c=>c.classList.add("hidden"));
+    optionsWindow.classList.remove("hidden");
+}
+
+function logout(){location.reload();}
+
+function addStudent(){
+    let row=studentTable.insertRow();
+    let img=document.createElement("img");
+    img.className="photo";
+    img.src=URL.createObjectURL(sphoto.files[0]);
+
+    row.insertCell().appendChild(img);
+    row.insertCell().innerText=sname.value;
+    row.insertCell().innerText=sroll.value;
+    row.insertCell().innerText=sdept.value;
+    row.insertCell().innerText=syear.value;
+    row.insertCell().innerText=satt.value;
+
+    students.push({name:sname.value,att:+satt.value});
+    document.querySelectorAll("#addStudent input").forEach(i=>i.value="");
+}
+
+function drawChart(){
+    let ctx=attendanceChart.getContext("2d");
+    ctx.clearRect(0,0,900,400);
+    students.forEach((s,i)=>{
+        let h=s.att*3;
+        ctx.fillStyle="#2563eb";
+        ctx.fillRect(70+i*90,350-h,50,h);
+        ctx.fillText(s.name,70+i*90,370);
+    });
+}
+
+function addFaculty(){
+    let li=document.createElement("li");
+    let img=document.createElement("img");
+    img.className="photo";
+    img.src=URL.createObjectURL(fphoto.files[0]);
+    li.appendChild(img);
+    li.append(" "+fname.value+" - "+fdept.value);
+    facultyList.appendChild(li);
+    fphoto.value=fname.value=fdept.value="";
+}
+
+function setBackground(e){
+    const file=e.target.files[0];
+    if(!file) return;
+    const url=URL.createObjectURL(file);
+    document.body.style.background=`url('${url}') no-repeat center center fixed`;
+    document.body.style.backgroundSize="cover";
+}
+
+/* ✅ CALL POPUP TOGGLE */
+function toggleCall(){
+    callPopup.style.display = callPopup.style.display==="block" ? "none" : "block";
+}
+</script>
+
+</body>
+</html>
+
